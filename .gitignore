@@ -20,3 +20,15 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+
+__pycache__/
+default.yaml
+mini/
+nuscenes/
+waymo/
+**/waymo*
+picture/
+loss.py
+**/generate_bev_mae*
+generate_box_point.py
+visualization_mae.py

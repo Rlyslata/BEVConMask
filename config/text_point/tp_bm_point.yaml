@@ -1,0 +1,66 @@
+DATASET: 
+    NAME: 'nuscenes'
+    IS_MINI: False
+    DATASET_ROOT: '/opt/data/private/dataset/nuscenes-trainval'
+    DATA_SPLIT: {
+        'train': parametrizing,
+        'val': train,
+        'test': val
+    }
+
+    POINT_CLOUD_RANGE: [-51.2, -51.2, -3.0, 51.2, 51.2, 1.0]
+    VOXEL_SIZE: [0.05, 0.05, 0.1]
+    INPUT_FRAMES: 1
+    OUTPUT_FRAMES: 1
+    SKIP_FRAMES: 1
+
+    TEXT: True
+    TEXT_CATEGORIES: 6
+    TEXT_EMBEDDINGS_DIMENSION: 512
+    TEXT_EMBEDDINGS_PATH: '/opt/data/private/pretrained_model/MaskCLIP/ViT16/nuscenes_ViT16_clip_text.pth'
+
+    BEV: True
+    BOX_POINT: True
+
+BEV_SAVE_PATH: '/opt/data/private/dataset/nuscenes-trainval'
+BOX_SAVE_PATH: '/opt/data/private/dataset/nuscenes-trainval'
+POINT_SAVE_PATH: '/opt/data/private/dataset/nuscenes-trainval'
+
+OPTIMIZATION:
+    NUM_GPU: 1
+    BATCH_SIZE_PER_GPU: 4
+    NUM_EPOCHS: 20
+    NUM_WORKERS_PER_GPU: 2
+
+    OPTIMIZER: AdamW
+    LR: 0.001
+    WEIGHT_DECAY: 0.001
+
+MODEL:
+    POINT_ENCODER: True
+    SAM: True
+
+    # Which losses to use (note that multiple losses will be summed)
+    LOSSES: ["loss_tp_bevmask_point"]
+
+    # Path to weights to continue a previous training
+    RESUME_PATH: Null
+
+    # Path to save model
+    SAVE_PATH: "/opt/data/private/output/pretrain"
+
+    # DATASET_SKIP_STEP-1 Indicates the number of data to be skipped. If DATASET_SKIP_STEP = 1, 100% data is used. If DATASET_SKIP_STEP = 2, 50% data is used.
+    # If MODE="pretrain", DATASET_SKIP_STEP is always set to 1 and 100% data is used.
+    DATASET_SKIP_STEP: 1
+
+POINT_ENCODER:
+    NAME: SECOND
+    COLLATE: collate_spconv
+    IN_CHANNELS: 4
+    OUT_CHANNELS: 256  # DO NOT CHANGE
+    FINAL: False
+    FEATURE_DIMENSION: 512
+
+# TODO
+SAM: 
+    NAME: "EfficientSAM"

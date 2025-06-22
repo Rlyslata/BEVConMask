@@ -1,0 +1,36 @@
+DATASET: 
+  NAME: 'nuscenes'
+  IS_MINI: False
+  DATASET_ROOT: '/opt/data/private/dataset/nuscenes-trainval'
+  DATA_SPLIT: {
+    'train': parametrizing,
+    'val': train,
+    'test': val
+  }
+
+  POINT_CLOUD_RANGE: [-51.2, -51.2, -3.0, 51.2, 51.2, 1.0]
+  VOXEL_SIZE: [0.05, 0.05, 0.1]
+
+  TEXT_CATEGORIES: 6
+  TEXT_EMBEDDINGS_DIMENSION: 512
+  TEXT_EMBEDDINGS_PATH: '/opt/data/private/pretrained_model/MaskCLIP/ViT16/nuscenes_ViT16_clip_text.pth'
+
+  BEV_SAVE_PATH: '/opt/data/private/dataset/nuscenes-trainval'
+  BOX_SAVE_PATH: '/opt/data/private/dataset/nuscenes-trainval'
+  POINT_SAVE_PATH: '/opt/data/private/dataset/nuscenes-trainval'
+  LOG_SAVE_PATH: '/opt/data/private/dataset/nuscenes-trainval'
+
+OPTIMIZATION:
+  BATCH_SIZE_PER_GPU: 4
+  NUM_WORKERS_PER_GPU: 2
+
+MODEL:
+  IMAGE_ENCODER: True
+  # The voxel size corresponding to a BEV Grid (BEV_GRID_SIZE = k means that the actual side length of the BEV Grid is k * voxel size)
+  # When the point cloud encoder is SECOND, one pixel on the BEV feature corresponds to 8 voxel sizes
+  BEV_GRID_SIZE: 8
+
+IMAGE_ENCODER: 
+    NAME: "maskclip"
+    CHECKPOINT: '/opt/data/private/pretrained_model/MaskCLIP/ViT16/ViT16_clip_backbone.pth'
+    VISUAL_PROJS_PATH: '/opt/data/private/pretrained_model/MaskCLIP/ViT16/ViT16_clip_weights.pth'
