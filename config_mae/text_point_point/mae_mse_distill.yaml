@@ -51,8 +51,8 @@ MODEL:
     TEACHER: True
 
     # Which losses to use (note that multiple losses will be summed)
-    LOSSES: ["loss_distill", "loss_sem_mse", "loss_coor"]
-
+    LOSSES: ["loss_distill"]
+    # LOSSES: ["loss_distill", "loss_sem_mse", "loss_coor"]
     # Path to weights to continue a previous training
     RESUME_PATH: Null
 
@@ -87,4 +87,4 @@ SAM:
     NAME: "EfficientSAM"
 
 TEACHER:
-    PATH: "/opt/data/private/result/pretrain/bm_pb_bc-2/model_epoch20.pt"
+    PATH: "/opt/data/private/output/pretrain/bevgrid-s_point-3-with-noise/230526-1505/model_epoch20.pt"

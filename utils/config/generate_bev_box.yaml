@@ -19,6 +19,9 @@ DATASET:
   BOX_SAVE_PATH: '/opt/data/private/dataset/nuscenes-trainval'
   POINT_SAVE_PATH: '/opt/data/private/dataset/nuscenes-trainval'
   LOG_SAVE_PATH: '/opt/data/private/dataset/nuscenes-trainval'
+  
+  CORRUPTIONS: 'spatial_alignment_noise'   # or 'None'
+  SEVERITY: 2                              # 1 ~ 5
 
 OPTIMIZATION:
   BATCH_SIZE_PER_GPU: 4

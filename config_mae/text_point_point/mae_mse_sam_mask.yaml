@@ -49,9 +49,11 @@ MODEL:
     DECODER_COOR: True
     DECODER_SEM: False
     SAM: True
-
+    TEACHER: False
     # Which losses to use (note that multiple losses will be summed)
-    LOSSES: ["loss_sem_mse", "loss_coor"]
+    LOSSES: ["loss_sem_mse_sam_point_switch", "loss_coor"]
+
+    # LOSSES: ["loss_sem_mse", "loss_coor"]
 
     # Path to weights to continue a previous training
     RESUME_PATH: Null
@@ -85,3 +87,5 @@ DECODER_SEM:
 
 SAM: 
     NAME: "EfficientSAM"
+# TEACHER:
+#     PATH: "/opt/data/private/output/pretrain/bevgrid-s_point-3-with-noise/230526-1505/model_epoch20.pt"

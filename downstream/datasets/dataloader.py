@@ -8,13 +8,13 @@ from pcdet.utils import common_utils
 from pcdet.datasets.dataset import DatasetTemplate
 from datasets.nuscenes_dataset import NuscenesDownstreamDataset
 from datasets.kitti_dataset import KittiDownstreamDataset
-from datasets.waymo_dataset import WaymoDownstreamDataset
+# from datasets.waymo_dataset import WaymoDownstreamDataset
 
 __all__ = {
     'DatasetTemplate': DatasetTemplate,
     'NuscenesDownstreamDataset': NuscenesDownstreamDataset,
     'KittiDownstreamDataset': KittiDownstreamDataset,
-    'WaymoDownstreamDataset': WaymoDownstreamDataset
+    # 'WaymoDownstreamDataset': WaymoDownstreamDataset
 }
 
 

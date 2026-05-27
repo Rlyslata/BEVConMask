@@ -51,7 +51,9 @@ python utils/prompt_engineering.py --model ViT16 --class-set nuscenes
 ```shell
 # Generate a bev_map with a height range of -2 to 1 and a grid size of 1.
 # ng1_lb-2.0
-python generate_bev.py --bev_save_path your_path --config_file utils/config/generate_bev_box.yaml --lower_bound -2 --train --val
+# python generate_bev.py --bev_save_path your_path --config_file utils/config/generate_bev_box.yaml --lower_bound -2 --train --val
+
+nohup python generate_bev.py --bev_save_path ./BEV_SAVE_DIR/bevgrid_ng_1b-2_with_nosie --config_file utils/config/generate_bev_box.yaml --lower_bound -2 --train --val > ./logs/bevgrid_data_process_bevgrid_ng_1b-2_with_nosie.log 2>&1 &
 ```
 
 **Step 2.** Pre-training.
@@ -136,3 +138,5 @@ python test.py --name your_name --pretrained_model your_model --ckpt your_ckpt -
 # Acknowledgement
 
 Part of the codebase has been adapted from [BEVContrast](https://github.com/valeoai/BEVContrast), [CLIP2Scene](https://github.com/runnanchen/CLIP2Scene), [EfficientSAM](https://github.com/yformer/EfficientSAM?tab=readme-ov-file), [BEV-MAE](https://github.com/VDIGPKU/BEV-MAE) and [OpenPCDet](https://github.com/open-mmlab/OpenPCDet).
+
+<!-- BEV-MAE用的是原论文开源的模型文件，微调时要选配置文件second_res.yaml，其他选配置文件second.yaml -->

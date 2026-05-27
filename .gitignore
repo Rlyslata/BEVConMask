@@ -1,6 +1,16 @@
 ### AL ###
 #Template for AL projects for Dynamics 365 Business Central
 #launch.json folder
+*.pth
+*.pt
+nohup.*
+*.zip
+venv/
+BEV_SAVE_DIR/
+datasets/
+logs/
+*.run
+*.whl
 .vscode/
 #Cache folder
 .alcache/
@@ -32,3 +42,4 @@ loss.py
 **/generate_bev_mae*
 generate_box_point.py
 visualization_mae.py
+

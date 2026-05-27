@@ -203,7 +203,7 @@ def generate_box_point_from_bev(config, logger, dataloader, mode=None):
 
 def parse_config():
     parser = argparse.ArgumentParser(description="arg parser")
-    parser.add_argument("--config_file", type=str, default='/opt/data/private/CSBEV/utils/config/generate_bev_box_mini.yaml', help="specify the config for processing point to bev")
+    parser.add_argument("--config_file", type=str, default='/opt/data/private/code/BEVConMask/utils/config/generate_bev_box_mini.yaml', help="specify the config for processing point to bev")
     parser.add_argument("--bp_save_path", type=str, default=None, help="provide a path to save the generated BOX and POINT")
     parser.add_argument("--bev_name", type=str, default='ng1_lb-1', help="bev name")
     parser.add_argument("--train", action='store_true', default=False, help='generate train dataset')

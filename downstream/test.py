@@ -19,7 +19,7 @@ from pcdet.utils import common_utils
 
 def parse_config():
     parser = argparse.ArgumentParser(description='arg parser')
-    parser.add_argument('--cfg_file', type=str, default='/opt/data/private/CSBEV/downstream/config/kitti/second.yaml', help='specify the config for training')
+    parser.add_argument('--cfg_file', type=str, default='/opt/data/private/code/BEVConMask/downstream/config/kitti/second.yaml', help='specify the config for training')
     parser.add_argument('--name', type=str, default='default', help='name of the experiment')
     parser.add_argument('--data_skip_step', type=int, default=1, help='skip data')
     parser.add_argument('--ckpt', type=str, default=None, help='checkpoint to start from')

@@ -10,7 +10,7 @@ def build_efficient_sam_vitt():
     return build_efficient_sam(
         encoder_patch_embed_dim=192,
         encoder_num_heads=3,
-        checkpoint="/opt/data/private/pretrained_model/EfficientSAM/efficient_sam_vitt.pt",
+        checkpoint="/opt/data/private/code/BEVConMask/checkpoints/efficient_sam_vitt.pt",
     ).eval()
 
 

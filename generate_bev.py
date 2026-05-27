@@ -58,7 +58,8 @@ class NuscenesDataset(Dataset):
         self.lower_bound = config.LOWER_BOUND
         self.num_grid = config.NUM_GRID
 
-
+        self.corruptions = config.DATASET.get('CORRUPTIONS', 'None')
+        self.severity = config.DATASET.get('SEVERITY', 1)
         if "cached_nuscenes" in kwargs:
             self.nusc = kwargs["cached_nuscenes"]
         elif config.DATASET.IS_MINI:
@@ -121,7 +122,24 @@ class NuscenesDataset(Dataset):
             & (points[:, 1] > limit_range[1]) & (points[:, 1] < limit_range[4]) \
             & (points[:, 2] >= self.lower_bound) & (points[:, 2] <= limit_range[5])
         return points[mask]
+    def spatial_alignment_noise(points_xyz, severity):
+        """
+        Apply spatial misalignment noise to point cloud coordinates,
+        simulating extrinsic calibration errors between LiDAR and camera.
+        Noise levels follow the CVPR 2023 benchmark: 
+        'Benchmarking Robustness of 3D Object Detection to Common Corruptions'.
+        """
+        # Translation noise standard deviation (meters)
+        ct = [0.02, 0.04, 0.06, 0.08, 0.10][severity - 1] * 2
+        # Rotation noise standard deviation (added directly to the 3×3 matrix)
+        cr = [0.002, 0.004, 0.006, 0.008, 0.010][severity - 1] * 2
 
+        r_noise = np.random.normal(size=(3, 3)) * cr
+        t_noise = np.random.normal(size=3) * ct
+
+        # Apply perturbation: x' = (I + r_noise) x + t_noise
+        points_xyz = (np.eye(3) + r_noise) @ points_xyz + t_noise[:, np.newaxis]
+        return points_xyz
     def map_pointcloud_to_image(self, point_merged, R, T, data, min_dist: float = 1.0):
         pc_original = LidarPointCloud.from_points(point_merged)
 
@@ -158,6 +176,10 @@ class NuscenesDataset(Dataset):
             # pc.translate(np.array(poserecord["translation"]))
             pc.rotate(R)
             pc.translate(T)
+            # ---------- spatial misalignment noise----------
+            if self.phase == 'train' and self.corruptions == 'spatial_alignment_noise':
+                pc.points[:3, :] = self.spatial_alignment_noise(pc.points[:3, :], self.severity)
+            # ---------------------------------------
 
             # Third step: transform from global into the ego vehicle frame for the
             # timestamp of the image.

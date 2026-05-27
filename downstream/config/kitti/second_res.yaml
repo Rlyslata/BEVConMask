@@ -1,7 +1,7 @@
 CLASS_NAMES: ['Car', 'Pedestrian', 'Cyclist']
 
 DATA_CONFIG: 
-    _BASE_CONFIG_: /opt/data/private/CSBEV/downstream/config/kitti/kitti_dataset.yaml
+    _BASE_CONFIG_: /opt/data/private/code/BEVConMask/downstream/config/kitti/kitti_dataset.yaml
     DATASET: 'KittiDownstreamDataset'
     DATA_PATH: '/opt/data/private/dataset/kitti3D'
     DATASET_SKIP_STEP: 1
