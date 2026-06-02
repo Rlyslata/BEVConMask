@@ -28,11 +28,41 @@
         
         # pre-training
             # bevgrid-s_point-1-with-noise
-                # S-1 配置文件弄错了,没有选择switch，有时间再搞
-                nohup python pretrain.py --name bevgrid-s_point-1-with-noise --bev_name bevgrid_S-with_nosie --box_point_name bevgrid_S-with_nosie_ms3_f10 --config_file config/text_point_point/tpp_tp_bm_point_pp_bc.yaml --conv 1 > ./logs/bevgrid-pretrianing-s_point-1-with-noise.log 2>&1 &
-                
-                nohup python pretrain.py --name bevgrid-s_point-3-with-noise --bev_name bevgrid_S-with_nosie --box_point_name bevgrid_S-with_nosie_ms3_f10 --config_file config/text_point_point/tpp_tp_bm_box_point_and_switch_pp_bc.yaml --conv 3 > ./logs/bevgrid-pretrianing-s_point-3-with-noise.log 2>&1 &
-            
+                # S-1 
+                nohup python pretrain.py \
+                --name bevgrid-s_point-1-with-noise_first_10_epoch \
+                --bev_name bevgrid_S-with_nosie \
+                --box_point_name bevgrid_S-with_nosie_ms3_f10 \
+                --config_file config/text_point_point/tpp_tp_bm_point_pp_bc.yaml \
+                --num_epochs 10 \
+                --conv 1 > ./logs/bevgrid-pretrianing-s_point-1-with-noise.log 2>&1 &
+
+                nohup python pretrain.py \
+                --name bevgrid-s_point-1-with-noise_second_10_epoch \
+                --bev_name bevgrid_S-with_nosie \
+                --box_point_name bevgrid_S-with_nosie_ms3_f10 \
+                --config_file config/text_point_point/tpp_tp_bm_box_pp_bc.yaml \
+                --resume_path "todo" \
+                --num_epochs 10 \
+                --conv 1 >> ./logs/bevgrid-pretrianing-s_point-1-with-noise.log 2>&1 &
+                # S-3 
+                nohup python pretrain.py \
+                --name bevgrid-s_point-3-with-noise_first_10_epoch \
+                --bev_name bevgrid_S-with_nosie \
+                --box_point_name bevgrid_S-with_nosie_ms3_f10 \
+                --config_file config/text_point_point/tpp_tp_bm_point_pp_bc.yaml \
+                --num_epochs 10 \
+                --conv 3 > ./logs/bevgrid-pretrianing-s_point-3-with-noise.log 2>&1 &
+
+                nohup python pretrain.py \
+                --name bevgrid-s_point-3-with-noise_second_10_epoch \
+                --bev_name bevgrid_S-with_nosie \
+                --box_point_name bevgrid_S-with_nosie_ms3_f10 \
+                --config_file config/text_point_point/tpp_tp_bm_box_pp_bc.yaml \
+                --resume_path "todo" \
+                --num_epochs 10 \
+                --conv 3 >> ./logs/bevgrid-pretrianing-s_point-3-with-noise.log 2>&1 &
+
         # fine tuning
             cd downstream
             # 5%
@@ -46,12 +76,13 @@
         # data process
         # pre-training
             # BEVRecon-D
-            nohup python pretrain_mae.py --name bevrecon-with-noise-D --bev_name bevgrid_S-with_nosie --box_point_name bevgrid_S-with_nosie_ms3_f10 --config_file config_mae/text_point_point/mae_mse_distill.yaml > ./logs/bevrecon-pretraining-with-noise-D-with-noise.log 2>&1 &
+            nohup python pretrain_mae.py --name bevrecon-with-noise-D --bev_name bevgrid_S-with_nosie --box_point_name bevgrid_S-with_nosie_ms3_f10 --config_file config_mae/distill/distill.yaml > ./logs/bevrecon-pretraining-with-noise-D-with-noise.log 2>&1 &
             # BEVRecon-R
             nohup python pretrain_mae.py --name bevrecon-with-noise-R --bev_name bevgrid_S-with_nosie --box_point_name bevgrid_S-with_nosie_ms3_f10 --config_file config_mae/text_point_point/mae_mse_sam_mask.yaml > ./logs/bevrecon-pretraining-with-noise-R-with-noise.log 2>&1 &
             # BEVRecon-DR
-            nohup python pretrain_mae.py --name bevrecon-with-noise-DR --bev_name bevgrid_S-with_nosie --box_point_name bevgrid_S-with_nosie_ms3_f10 --config_file config_mae/text_point_point/mae_mse_sam_point_switch.yaml > ./logs/bevrecon-pretraining-with-noise-DR-with-noise.log 2>&1 &
+            nohup python pretrain_mae.py --name bevrecon-with-noise-DR --bev_name bevgrid_S-with_nosie --box_point_name bevgrid_S-with_nosie_ms3_f10 --config_file config_mae/text_point_point/mae_mse_distill.yaml > ./logs/bevrecon-pretraining-with-noise-DR-with-noise.log 2>&1 &
         # # fine-tuning
+        # cd downstream
         #     # 5%
         #         # BEVRecon-D
         #         nohup python train.py --name bevrecon-with-noise-D --pretrained_model /opt/data/private/output/ --data_skip_step 20 > ../logs/bevrecon-with-noise-D-finetuning.log 2>&1 &
@@ -62,50 +93,67 @@
 
                 
         # # test 
+        # cd downstream
         #     python test.py --name bevrecon-with-noise-D --ckpt /opt/data/private/output/
         #     python test.py --name bevrecon-with-noise-R --ckpt your_/opt/data/private/output/ckpt
         #     python test.py --name bevrecon-with-noise-DR --ckpt /opt/data/private/output/
 
-# # 跨数据集实验
-#     # 数据集情况
-#         正在从 https://opendatalab.com/OpenDataLab/Waymo 下载
-#     # waymo 数据脚本
-#         准备downstream/datasets/waymo_dataset.py, 尚未完成
-#     # fine-tuing
-#         # No pretrain
-#             是指直接用 SECOND 检测头 吗，不微调直接执行 : python test.py --name your_name --pretrained_model your_model --ckpt your_ckpt
-#             那 your_model, your_ckpt 如何设置
-#         # BEVContrast
-#             # 对OPENPCDet不了解，不知道怎么微调，麻烦师姐指导：
-#                 # 1%
-#                     python train.py --name your_name --pretrained_model your_model --data_skip_step 100
-
-#                 # 10
-#                     python train.py --name your_name --pretrained_model your_model --data_skip_step 10
-
-#                 your_model 指定为 "预训练模型.zip" 的 BEVContrast.pt, 如 checkpoints/pretrained_model/BEVContrast.pt 或 pretrain.py的到的模型checkpoint,
-#                 另外，downstream/train.py 的--cfg_file默认为.../kitti/second.yml, 这里需要指定为waymo对应yml?
-#                 parser.add_argument('--cfg_file', type=str, default='/opt/data/private/BEVConMask/downstream/config/kitti/second.yaml', help='specify the config for training')
-#         # BEV-MAE
-#             --cfg_file 使用second_res.yaml
-
-#         # BEVGrid
+# 跨数据集实验
+    # 数据集情况
+        正在从 https://opendatalab.com/OpenDataLab/Waymo 下载
+    # waymo 数据脚本
+        cd downstream
+        python datasets/waymo_dataset.py \
+            --cfg_file config/waymo/waymo_dataset.yaml \
+            --data_path /opt/data/private/dataset/OpenDataLab___Waymo/waymo
+    # fine-tuing
+        # BEVContrast
+            # 1%
+                python train.py \
+                --name BEVContrast-1-percent \
+                --pretrained_model ../checkpoints/pretrained_model/BEVContrast.pt \
+                --data_skip_step 100 \
+                --epochs 10 \
+                --cfg_file config/waymo/second.yml
+            # 10
+                python train.py \
+                --name BEVContrast-10-percent \
+                --pretrained_model ../checkpoints/pretrained_model/BEVContrast.pt \
+                --data_skip_step 10 \
+                --epochs 10 \
+                --cfg_file config/waymo/second.yml
+        # BEV-MAE
+            # --cfg_file 使用second_res.yaml
+            # 1%
+                python train.py \
+                --name BEVContrast-1-percent \
+                --pretrained_model ../checkpoints/pretrained_model/BEV-MAE.pth \
+                --data_skip_step 100 \
+                --epochs 10 \
+                --cfg_file config/waymo/second_res.yml
+            # 10
+                python train.py \
+                --name BEVContrast-10-percent \
+                --pretrained_model ../checkpoints/pretrained_model/BEV-MAE.pth \
+                --data_skip_step 10 \
+                --epochs 10 \
+                --cfg_file config/waymo/second_res.yml
+        # BEVGrid
             
-#         # BEVGrid-S-1
-#             "预训练模型.zip"没有checkpoint，需要训练获得
+        # BEVGrid-S-1
+            "预训练模型.zip"没有checkpoint，需要训练获得
 
-#         # BEVGrid-S-3
+        # BEVGrid-S-3
 
-#         # BEVRecon-D
-#             "预训练模型.zip"没有checkpoint，需要训练获得
+        # BEVRecon-D
+            "预训练模型.zip"没有checkpoint，需要训练获得
 
-#         # BEVRecon-R
-#             "预训练模型.zip"没有checkpoint，需要训练获得
+        # BEVRecon-R
+            "预训练模型.zip"没有checkpoint，需要训练获得
 
-#         # BEVRecon-DR
-#     # test
-#         # 分别测试 1%, 10% 微调模型，your_model，your_model 如何设置？your_model = 预训练得到的模型，your_ckpt = 微调后的模型？
-#         python test.py --name your_name --pretrained_model your_model --ckpt your_ckpt
+        # BEVRecon-DR
+    # test
+        python test.py --name your_name --pretrained_model your_model --ckpt your_ckpt
 
 # # 计算开销
 #     OPENPCDet 或 python-lightening会输出吗？

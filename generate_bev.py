@@ -154,7 +154,17 @@ class NuscenesDataset(Dataset):
             "CAM_BACK_LEFT",
             "CAM_FRONT_LEFT",
         ]
-
+        
+        if self.phase == 'train' and self.corruptions == 'spatial_alignment_noise':
+            ct = [0.02, 0.04, 0.06, 0.08, 0.10][self.severity - 1] * 2
+            cr = [0.002, 0.004, 0.006, 0.008, 0.010][self.severity - 1] * 2
+            r_noise = np.random.normal(size=(3, 3)) * cr
+            t_noise = np.random.normal(size=3) * ct
+            noise_matrix = np.eye(3) + r_noise
+        else:
+            noise_matrix = np.eye(3)
+            t_noise = np.zeros(3)
+            
         for i, camera_name in enumerate(camera_list):
             pc = copy.deepcopy(pc_original)
             cam = self.nusc.get("sample_data", data[camera_name])
@@ -176,11 +186,7 @@ class NuscenesDataset(Dataset):
             # pc.translate(np.array(poserecord["translation"]))
             pc.rotate(R)
             pc.translate(T)
-            # ---------- spatial misalignment noise----------
-            if self.phase == 'train' and self.corruptions == 'spatial_alignment_noise':
-                pc.points[:3, :] = self.spatial_alignment_noise(pc.points[:3, :], self.severity)
-            # ---------------------------------------
-
+           
             # Third step: transform from global into the ego vehicle frame for the
             # timestamp of the image.
             poserecord = self.nusc.get("ego_pose", cam["ego_pose_token"])
@@ -194,6 +200,11 @@ class NuscenesDataset(Dataset):
             pc.translate(-np.array(cs_record["translation"]))
             pc.rotate(Quaternion(cs_record["rotation"]).rotation_matrix.T)
 
+            # ---------- spatial misalignment noise----------
+            if self.phase == 'train' and self.corruptions == 'spatial_alignment_noise':
+                pc.points[:3, :] = noise_matrix @ pc.points[:3, :] + t_noise[:, np.newaxis]
+            # ---------------------------------------
+            
             # Fifth step: actually take a "picture" of the point cloud.
             # Grab the depths (camera frame z axis points away from the camera).
             depths = pc.points[2, :]

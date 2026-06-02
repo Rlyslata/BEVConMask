@@ -1,6 +1,8 @@
 ### AL ###
 #Template for AL projects for Dynamics 365 Business Central
 #launch.json folder
+kitti_dataset_origin.yml
+second_origin.yml
 *.pth
 *.pt
 nohup.*
@@ -35,8 +37,9 @@ __pycache__/
 default.yaml
 mini/
 nuscenes/
-waymo/
-**/waymo*
+# waymo/
+# **/waymo*
+!waymo_dataset.py
 picture/
 loss.py
 **/generate_bev_mae*

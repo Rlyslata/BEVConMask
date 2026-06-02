@@ -1,0 +1,4 @@
+nohup: ignoring input
+BevRecon-D start 
+BevRecon-R start 
+BevRecon-DR start 

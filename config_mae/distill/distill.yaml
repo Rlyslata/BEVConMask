@@ -87,4 +87,4 @@ SAM:
     NAME: "EfficientSAM"
 
 TEACHER:
-    PATH: "/opt/data/private/result/pretrain/bm_pb_bc-2/model_epoch20.pt"
+    PATH: "/opt/data/private/output/pretrain/bevgrid-s_point-3-with-noise_second_10_epoch/310526-0437/model_epoch20.pt"
