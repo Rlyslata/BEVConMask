@@ -11,7 +11,7 @@ from pcdet.datasets.dataset import DatasetTemplate
 
 
 class KittiDownstreamDataset(DatasetTemplate):
-    def __init__(self, dataset_cfg, class_names, training=True, root_path=None, logger=None, corruptions = 'None', severity = 1):
+    def __init__(self, dataset_cfg, class_names, training=True, root_path=None, logger=None):
         """
         Args:
             root_path:
@@ -23,8 +23,6 @@ class KittiDownstreamDataset(DatasetTemplate):
         super().__init__(
             dataset_cfg=dataset_cfg, class_names=class_names, training=training, root_path=root_path, logger=logger
         )
-        self.corruptions = corruptions
-        self.severity = severity
         self.split = self.dataset_cfg.DATA_SPLIT[self.mode]
         self.root_split_path = self.root_path / ('training' if self.split != 'test' else 'testing')
 
@@ -36,15 +34,7 @@ class KittiDownstreamDataset(DatasetTemplate):
         # finetune
         self.skip_ratio = self.dataset_cfg.DATASET_SKIP_STEP
         self.kitti_infos = self.skip_kitti_data(self.kitti_infos, self.skip_ratio)
-    # calibration noise
-    def spatial_alignment_noise(ori_pose, severity):
-        ct = [0.02, 0.04, 0.06, 0.08, 0.10][severity-1]*2   # 平移噪声标准差（米）
-        cr = [0.002, 0.004, 0.006, 0.008, 0.010][severity-1]*2 # 旋转噪声标准差（弧度？）
-        r_noise = np.random.normal(size=(3, 3)) * cr
-        t_noise = np.random.normal(size=(3)) * ct
-        ori_pose[:3, :3] += r_noise
-        ori_pose[:3, 3] += t_noise
-        return ori_pose
+    
     def skip_kitti_data(self, infos, skip_ratio):
         sampled_infos = []
         sampled_infos = infos[0:len(infos):skip_ratio]
@@ -125,18 +115,11 @@ class KittiDownstreamDataset(DatasetTemplate):
         depth /= 256.0
         return depth
 
-    # def get_calib(self, idx):
-    #     calib_file = self.root_split_path / 'calib' / ('%s.txt' % idx)
-    #     assert calib_file.exists()
-    #     return calibration_kitti.Calibration(calib_file)
     def get_calib(self, idx):
         calib_file = self.root_split_path / 'calib' / ('%s.txt' % idx)
         assert calib_file.exists()
-        calib = calibration_kitti.Calibration(calib_file)
-        if self.corruptions == 'spatial_alignment_noise':
-            noise_pose = self.spatial_alignment_noise(calib.V2C, self.severity)
-            calib.V2C = noise_pose          # 用带噪声的矩阵替换原外参
-        return calib
+        return calibration_kitti.Calibration(calib_file)
+
     def get_road_plane(self, idx):
         plane_file = self.root_split_path / 'planes' / ('%s.txt' % idx)
         if not plane_file.exists():
@@ -455,8 +438,8 @@ class KittiDownstreamDataset(DatasetTemplate):
         return data_dict
 
 
-def create_kitti_infos(dataset_cfg, class_names, data_path, save_path, workers=4, corruptions = 'None', severity = 1):
-    dataset = KittiDownstreamDataset(dataset_cfg=dataset_cfg, class_names=class_names, root_path=data_path,training=False, corruptions = corruptions, severity = severity)
+def create_kitti_infos(dataset_cfg, class_names, data_path, save_path, workers=4):
+    dataset = KittiDownstreamDataset(dataset_cfg=dataset_cfg, class_names=class_names, root_path=data_path, training=False)
     train_split, val_split = 'train', 'val'
 
     train_filename = save_path / ('kitti_infos_%s.pkl' % train_split)
@@ -505,9 +488,6 @@ if __name__ == '__main__':
     parser.add_argument('--cfg_file', type=str, default=None, help='specify the config of dataset')
     parser.add_argument('--func', type=str, default='create_kitti_infos', help='')
     parser.add_argument('--data_path', type=str, default=None, help='')
-    parser.add_argument('--corruptions', type=str, default='None', choices=['spatial_alignment_noise', 'None'], help='corruptions kind')
-    parser.add_argument('--severity', type=int, default= 1, help='corruptions severity')
-    
     args = parser.parse_args()
 
     if args.func == 'create_kitti_infos':
@@ -517,7 +497,5 @@ if __name__ == '__main__':
             dataset_cfg=dataset_cfg,
             class_names=['Car', 'Pedestrian', 'Cyclist'],
             data_path=data_path,
-            save_path=data_path,
-            corruptions = args.corruptions,
-            severity = args.severity
+            save_path=data_path
         )

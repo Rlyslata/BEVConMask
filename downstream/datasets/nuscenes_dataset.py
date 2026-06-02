@@ -13,13 +13,12 @@ from PIL import Image
 
 
 class NuscenesDownstreamDataset(DatasetTemplate):
-    def __init__(self, dataset_cfg, class_names, training=True, root_path=None, logger=None, corruptions = 'None', severity = 1):
+    def __init__(self, dataset_cfg, class_names, training=True, root_path=None, logger=None):
         root_path = (root_path if root_path is not None else Path(dataset_cfg.DATA_PATH))
         super().__init__(
             dataset_cfg=dataset_cfg, class_names=class_names, training=training, root_path=root_path, logger=logger
         )
-        self.corruptions = corruptions
-        self.severity = severity
+
         self.infos = []
         self.camera_config = self.dataset_cfg.get('CAMERA_CONFIG', None)
         if self.camera_config is not None:
@@ -35,15 +34,7 @@ class NuscenesDownstreamDataset(DatasetTemplate):
         # finetune
         self.skip_ratio = self.dataset_cfg.DATASET_SKIP_STEP
         self.infos = self.skip_nuscenes_data(self.infos, self.skip_ratio)
-    # calibration noise
-    def spatial_alignment_noise(ori_pose, severity):
-        ct = [0.02, 0.04, 0.06, 0.08, 0.10][severity-1]*2  
-        cr = [0.002, 0.004, 0.006, 0.008, 0.010][severity-1]*2
-        r_noise = np.random.normal(size=(3, 3)) * cr
-        t_noise = np.random.normal(size=(3)) * ct
-        ori_pose[:3, :3] += r_noise
-        ori_pose[:3, 3] += t_noise
-        return ori_pose
+    
     def skip_nuscenes_data(self, infos, skip_ratio):
         sampled_infos = []
         sampled_infos = infos[0:len(infos):skip_ratio]
@@ -379,7 +370,7 @@ class NuscenesDownstreamDataset(DatasetTemplate):
             pickle.dump(all_db_infos, f)
 
 
-def create_nuscenes_info(version, data_path, save_path, max_sweeps=10, with_cam=False, corruptions = 'None', severity = 1):
+def create_nuscenes_info(version, data_path, save_path, max_sweeps=10, with_cam=False):
     from nuscenes.nuscenes import NuScenes
     from nuscenes.utils import splits
     from pcdet.datasets.nuscenes import nuscenes_utils
@@ -438,8 +429,6 @@ if __name__ == '__main__':
     parser.add_argument('--version', type=str, default='v1.0-trainval', help='')
     parser.add_argument('--data_path', type=str, default=None, help='')
     parser.add_argument('--with_cam', action='store_true', default=False, help='use camera or not')
-    parser.add_argument('--corruptions', type=str, default='None', choices=['spatial_alignment_noise', 'None'], help='corruptions kind')
-    parser.add_argument('--severity', type=int, default= 1, help='corruptions severity')
     args = parser.parse_args()
 
     if args.func == 'create_nuscenes_infos':
@@ -458,8 +447,6 @@ if __name__ == '__main__':
         nuscenes_dataset = NuscenesDownstreamDataset(
             dataset_cfg=dataset_cfg, class_names=None,
             root_path=data_path,
-            logger=common_utils.create_logger(), training=True, 
-            corruptions = args.corruptions,
-            severity = args.severity
+            logger=common_utils.create_logger(), training=True
         )
         nuscenes_dataset.create_groundtruth_database(max_sweeps=dataset_cfg.MAX_SWEEPS)

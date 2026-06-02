@@ -31,6 +31,10 @@ class WaymoDownstreamDataset(DatasetTemplate):
         self.sample_sequence_list = [x.strip() for x in open(split_dir).readlines()]
 
         self.infos = []
+        
+        # finetune
+        self.skip_ratio = self.dataset_cfg.get('DATASET_SKIP_STEP', 1)
+        
         self.seq_name_to_infos = self.include_waymo_data(self.mode)
 
         self.use_shared_memory = self.dataset_cfg.get('USE_SHARED_MEMORY', False) and self.training
@@ -44,7 +48,14 @@ class WaymoDownstreamDataset(DatasetTemplate):
             )
         else:
             self.pred_boxes_dict = {}
-
+    
+    
+    def skip_waymo_data(self, infos, skip_ratio):
+        sampled_infos = []
+        sampled_infos = infos[0:len(infos):skip_ratio]
+        self.logger.info('Total samples after skipping: %d' % (len(sampled_infos)))
+        return sampled_infos
+    
     def set_split(self, split):
         super().__init__(
             dataset_cfg=self.dataset_cfg, class_names=self.class_names, training=self.training,
@@ -79,13 +90,15 @@ class WaymoDownstreamDataset(DatasetTemplate):
         self.logger.info('Total skipped info %s' % num_skipped_infos)
         self.logger.info('Total samples for Waymo dataset: %d' % (len(waymo_infos)))
 
-        if self.dataset_cfg.SAMPLED_INTERVAL[mode] > 1:
-            sampled_waymo_infos = []
-            for k in range(0, len(self.infos), self.dataset_cfg.SAMPLED_INTERVAL[mode]):
-                sampled_waymo_infos.append(self.infos[k])
-            self.infos = sampled_waymo_infos
+        # if self.dataset_cfg.SAMPLED_INTERVAL[mode] > 1:
+        #     sampled_waymo_infos = []
+        #     for k in range(0, len(self.infos), self.dataset_cfg.SAMPLED_INTERVAL[mode]):
+        #         sampled_waymo_infos.append(self.infos[k])
+        #     self.infos = sampled_waymo_infos
+        #     self.logger.info('Total sampled samples for Waymo dataset: %d' % len(self.infos))
+        if self.skip_ratio > 1:
+            self.infos = self.skip_waymo_data(self.infos, self.skip_ratio)
             self.logger.info('Total sampled samples for Waymo dataset: %d' % len(self.infos))
-            
         use_sequence_data = self.dataset_cfg.get('SEQUENCE_CONFIG', None) is not None and self.dataset_cfg.SEQUENCE_CONFIG.ENABLED
         if not use_sequence_data:
             seq_name_to_infos = None 
